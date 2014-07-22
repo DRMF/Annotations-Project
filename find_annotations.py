@@ -239,6 +239,8 @@ def find_annotations(content, out_deck, start, **options):
         if found_range:
             assoc_equations = assoc_equations[2:]
 
+        seen = set()
+
         #go through each indicator
         for indicator in indicators:
 
@@ -246,12 +248,13 @@ def find_annotations(content, out_deck, start, **options):
             for line in sentence.split("\n"):
 
                 #store each line that may contain an annotation
-                if ((" " + indicator + " " in line)
+                if (line not in seen
+                    and (" " + indicator + " " in line)
                     or (indicator + " " in line and line.startswith(indicator))
                     or (" " + indicator + ". " in line)):
 
                     annotation_lines.append("{0}: {1}".format(indicator, line.lstrip()))
-
+                    seen.add(line)
 
         #ask user about each possible annotation
         for line in annotation_lines:
@@ -293,15 +296,10 @@ def find_annotations(content, out_deck, start, **options):
 def _create_comment_string(responses):
 
     #take out the empty elements
-    #for key in responses.items():
-    #    if not key:
-    #        del responses[key]
-
     if () in responses:
         del responses[()]
 
     comment_str = ""
-
 
     #add comment line for every response at the beginning of the file  
     for response in responses:
