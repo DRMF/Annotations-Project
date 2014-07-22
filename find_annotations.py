@@ -127,7 +127,7 @@ def find_annotations(content, out_deck, start, **options):
         sectioning = "" 
 
         #see if the section or subsection is referenced
-        if "this subsection" in sentece:
+        if "this subsection" in sentence:
             sectioning = "subsection"
         if "this section" in sentence:
             sectioning = "section"
@@ -143,7 +143,7 @@ def find_annotations(content, out_deck, start, **options):
             current = snum + 2
 
             #keep adding sentences to after
-            while ((current < len(every_sentence)
+            while (current < len(every_sentence)
                 and ("\\" + sectioning) not in after):
 
                 after = ''.join([after, every_sentence[current]])
@@ -156,7 +156,7 @@ def find_annotations(content, out_deck, start, **options):
             current = after_lines[line_ind] 
  
             #keep adding lines until the start of the next section
-            while "\\" + sectioning not in current:
+            while ("\\" + sectioning) not in current:
                 to_join.append(current)
 
                 line_ind += 1
