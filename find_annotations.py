@@ -93,8 +93,6 @@ def find_annotations(content, out_deck, start, **options):
     doc_start = content.find("\\begin{document}")
     
     every_sentence = sentence_pat.findall(content[doc_start:])
-    #print(len(every_sentence))
-    #sys.exit(0)
 
     #go through each sentence
     for snum, sentence in enumerate(every_sentence):
