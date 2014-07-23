@@ -9,6 +9,12 @@ from collections import namedtuple, OrderedDict
 
 from utilities import (readin, writeout, get_input, get_last_line)
 
+#default name for the progress file
+PROGRESS_FILE = ".bookmark"
+
+#default name for the save file
+SAVE_FILE = ".save"
+
 #remap input and range functions for python 3
 if int(sys.version[0]) >= 3:
     raw_input = input
@@ -35,7 +41,7 @@ def main():
 
     #if file does not exist, no endline
     try:
-        endline = get_last_line(ofname)
+        endline = get_last_line(PROGRESS_FILE)
     except IOError as ie:
         endline = "" 
     
@@ -53,13 +59,13 @@ def main():
     if not options["resume"]:
         start_point = 0
     
-    output = find_annotations(readin(fname), ofname, start_point, **options)
+    output = find_annotations(readin(fname), start_point, **options)
 
     #only write out if we haven't already done so (user didn't quit)
-    if output:
+    if output is not None:
         writeout(ofname, output, options["append"])
  
-def find_annotations(content, out_deck, start, **options):
+def find_annotations(content, start, **options):
     """
     Finds possible annotations in the text and puts them in equations.
 
@@ -92,10 +98,10 @@ def find_annotations(content, out_deck, start, **options):
 
     doc_start = content.find("\\begin{document}")
     
-    every_sentence = sentence_pat.findall(content[doc_start:])
+    every_sentence = sentence_pat.iter(content[doc_start:])
 
     #go through each sentence
-    for snum, sentence in enumerate(every_sentence):
+    for snum, sentence_match in enumerate(every_sentence):
 
         #don't start till we get to starting point
         if snum < start:
@@ -104,17 +110,19 @@ def find_annotations(content, out_deck, start, **options):
         assoc_equations = []
         annotation_lines = []
 
+        sentence = sentence_match.group()
+
         before = ""
 
         #this isn't the first sentence, get the previous sentence
         if snum != 0:
-            before = every_sentence[snum - 1]
+            before = every_sentence[snum - 1].group()
 
         after = ""
 
         #this isn't the last sentence, get the next sentence
         if snum != len(every_sentence) - 1:
-            after = every_sentence[snum + 1]
+            after = every_sentence[snum + 1].group()
 
         sentence = sentence.strip()
         sentence = re.sub(r'\n{2,}', r'\n', sentence)
@@ -266,12 +274,27 @@ def find_annotations(content, out_deck, start, **options):
 
                 to_write = "{0}{1}".format(_create_comment_string(responses), snum)
 
-                writeout(out_deck, to_write, append=options["append"])
-                return ""
+                writeout(PROGRESS_FILE, to_write, append=options["append"])
+                return None
 
             #map each InputResponse to the sentence number
             for response in result:
                 responses[response] = snum
+
+        should_delete = get_input("Would you like to delete this sentence? (y/n)", valid=set("yn"), wait=False)
+        should_delete = should_delete == "y"
+
+        #we need to delete the sentence (at least up to the first equation)
+        if should_delete:
+
+            begin_loc = sentence_match.start()
+            end_loc = sentence_match.end()
+
+            #if an equation is in the sentence, only remove until there
+            if r'\begin{equation}' in sentence:
+                end_loc = content.find(r'\begin{equation}', begin_loc, end_loc)
+
+            content = content[:begin_loc] + "~~~~REM_START~~~~" + content[begin_loc:end_loc] + "~~~~REM_END~~~~" + content[end_loc:]
 
     comment_str = _create_comment_string(responses)
     content = comment_str + content
@@ -279,16 +302,16 @@ def find_annotations(content, out_deck, start, **options):
     comment_insertion_pat = re.compile(r'^% *\\(?P<name>.*?){(?P<annotation>.*?)}~~~~(?P<eq_id>.*?)~~~~(?P<between>.*?)(?P<equation>\\begin{equation}\\label{(?P=eq_id)}.*?\\end{equation})', re.DOTALL)
 
     #as long as there is a match in content, keep replacing
-#    while comment_insertion_pat.search(content):
-#        content = comment_insertion_pat.sub(_insert_comment, content)
-#        content = content[1:]   #take out empty line
+    while comment_insertion_pat.search(content):
+        content = comment_insertion_pat.sub(_insert_comment, content)
+        content = content[1:]   #take out empty line
 
     #equation_fixer_pat = re.compile(r'\\begin{equation}(?P<before>.*?)(?P<comment>\n%.*?\n)(?P<after>[^%].+?\n)\\end{equation}', re.DOTALL)
     #content = equation_fixer_pat.sub(r'\\begin{equation}\g<before>\g<after>\g<comment>\\end{equation}', content)
 
     print("DONE")
 
-    return comment_str
+    return content
 
 #returns the "comment_str" to be written given the responses list
 def _create_comment_string(responses):
