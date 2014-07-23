@@ -98,7 +98,8 @@ def find_annotations(content, start, **options):
 
     doc_start = content.find("\\begin{document}")
     
-    every_sentence = sentence_pat.iter(content[doc_start:])
+    every_sentence = list(sentence_pat.finditer(content[doc_start:]))
+    num_sentences = len(every_sentence)
 
     #go through each sentence
     for snum, sentence_match in enumerate(every_sentence):
@@ -121,7 +122,7 @@ def find_annotations(content, start, **options):
         after = ""
 
         #this isn't the last sentence, get the next sentence
-        if snum != len(every_sentence) - 1:
+        if snum != num_sentences - 1:
             after = every_sentence[snum + 1].group()
 
         sentence = sentence.strip()
@@ -149,10 +150,10 @@ def find_annotations(content, start, **options):
             current = snum + 2
 
             #keep adding sentences to after
-            while (current < len(every_sentence)
+            while (current < num_sentences
                 and ("\\" + sectioning) not in after):
 
-                after = ''.join([after, every_sentence[current]])
+                after = ''.join([after, every_sentence[current].group()])
                 current += 1
 
             to_join = []
@@ -185,10 +186,10 @@ def find_annotations(content, start, **options):
             main_name = match.group("main_name")
             
             #keep adding to after until we have the whole range
-            while (current < len(every_sentence)
+            while (current < num_sentences
                 and r'\label{' + end_id + '}' not in after):
 
-                to_add = every_sentence[current]
+                to_add = every_sentence[current].group()
 
                 #only add if it has a relevant equation in it
                 if r'\label{' in to_add:
@@ -227,7 +228,7 @@ def find_annotations(content, start, **options):
             #keep looking backward until we have a match
             while not eq_match and current > 0:
 
-                search_text = ''.join([every_sentence[current], search_text])
+                search_text = ''.join([every_sentence[current].group(), search_text])
                 eq_match = eq_pat.search(search_text) 
                 current -= 1
                 
@@ -275,6 +276,8 @@ def find_annotations(content, start, **options):
                 to_write = "{0}{1}".format(_create_comment_string(responses), snum)
 
                 writeout(PROGRESS_FILE, to_write, append=options["append"])
+                writeout(SAVE_FILE, content, append=options["append"])
+
                 return None
 
             #map each InputResponse to the sentence number
