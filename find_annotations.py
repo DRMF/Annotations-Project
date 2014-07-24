@@ -266,25 +266,16 @@ def find_annotations(content, start, **options):
         #ask user about each possible annotation
         for line in annotation_lines:
 
-            result = make_annotation_query(line, context, assoc_equations)
 
-            #user wants to quit, write out file and exit
-            if "QUIT" in result:
-
-                print("-" * 40 + "QUITTING" + "-" * 40 + "\n")
-
-                to_write = "{0}{1}".format(_create_comment_string(responses), snum)
-
-                writeout(PROGRESS_FILE, to_write, append=options["append"])
-                writeout(SAVE_FILE, content, append=options["append"])
-
-                return None
+            to_write = "{0}{1}".format(_create_comment_string(responses), snum)
+            result = _check_and_quit(make_annotation_query(line, context, assoc_equations), to_write, content, options)
 
             #map each InputResponse to the sentence number
             for response in result:
                 responses[response] = snum
 
-        should_delete = get_input("Would you like to delete this sentence? (y/n)", valid=set("yn"), wait=False)
+        should_delete = get_input("Would you like to delete this sentence? (y/n)", valid=set("ynq"), wait=False)
+
         should_delete = should_delete == "y"
 
         #we need to delete the sentence (at least up to the first equation)
@@ -311,10 +302,34 @@ def find_annotations(content, start, **options):
 
     #equation_fixer_pat = re.compile(r'\\begin{equation}(?P<before>.*?)(?P<comment>\n%.*?\n)(?P<after>[^%].+?\n)\\end{equation}', re.DOTALL)
     #content = equation_fixer_pat.sub(r'\\begin{equation}\g<before>\g<after>\g<comment>\\end{equation}', content)
+    removal_pat = re.compile(r'~~~~REM_START~~~~.*?~~~~REM_END~~~~', re.DOTALL)
+    content = removal_pat.sub('', content)
 
     print("DONE")
 
     return content
+
+#checks if the user wants to quit, and does so if necessary
+def _check_and_quit(response, progress, save, options):
+
+    if _is_quit(response):
+        _quick_exit(progress, save, options)
+
+    return response
+
+#exits the program after saving the necessary files
+def _quick_exit(progress, save, options):
+
+    print("-" * 35 + "QUITTING" + "-" * 35 + "\n")
+
+    writeout(PROGRESS_FILE, progress, options["append"])
+    writeout(SAVE_FILE, save, options["append"])
+
+    sys.exit(0)
+
+#checks if the user want to quit and takes appropriate action if they do
+def _is_quit(result):
+    return "QUIT" in result
 
 #returns the "comment_str" to be written given the responses list
 def _create_comment_string(responses):
