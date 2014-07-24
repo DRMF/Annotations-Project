@@ -96,7 +96,7 @@ def find_annotations(content, start, **options):
 
     responses = OrderedDict()
 
-    doc_start = content.find("\\begin{document}")
+    doc_start = content.find("\\begin{document}") + len(r'\begin{document}')
     
     every_sentence = list(sentence_pat.finditer(content[doc_start:]))
     num_sentences = len(every_sentence)
@@ -266,7 +266,6 @@ def find_annotations(content, start, **options):
         #ask user about each possible annotation
         for line in annotation_lines:
 
-
             to_write = "{0}{1}".format(_create_comment_string(responses), snum)
             result = _check_and_quit(make_annotation_query(line, context, assoc_equations), to_write, content, options)
 
@@ -281,14 +280,41 @@ def find_annotations(content, start, **options):
         #we need to delete the sentence (at least up to the first equation)
         if should_delete:
 
-            begin_loc = sentence_match.start()
-            end_loc = sentence_match.end()
+            begin_loc = sentence_match.start() + doc_start
+            end_loc = sentence_match.end() + doc_start
 
             #if an equation is in the sentence, only remove until there
             if r'\begin{equation}' in sentence:
                 end_loc = content.find(r'\begin{equation}', begin_loc, end_loc)
 
             content = content[:begin_loc] + "~~~~REM_START~~~~" + content[begin_loc:end_loc] + "~~~~REM_END~~~~" + content[end_loc:]
+
+        #shouldn't delete sentence, ask about keywords
+        else:
+
+            should_add_word = get_input("Would you like to add a keyword? (y/n)", valid=set("yn"), wait=False)
+            should_add_word = should_add_word == "y"
+            
+            #user wants to add a keyword
+            if should_add_word: 
+
+                new_keyword = get_input("Enter the new keyword:")
+
+                indicators.append(new_keyword)
+                indicators.append(new_keyword.title())
+
+            store_current = get_input("Would you like to store an annotation on this line? (y/n)", valid=set("yn"), wait=False)
+            store_current = store_current == "y"
+
+            #user wants to store an annotation on this line
+            if store_current:
+
+                to_write = "{0}{1}".format(_create_comment_string(responses), snum)
+                result = _check_and_quit(make_annotation_query("", context, assoc_equations), to_write, content, options)
+
+                #map each InputResponse to its sentence number
+                for response in result:
+                    responses[response] = snum
 
     comment_str = _create_comment_string(responses)
     content = comment_str + content
@@ -323,7 +349,7 @@ def _quick_exit(progress, save, options):
     print("-" * 35 + "QUITTING" + "-" * 35 + "\n")
 
     writeout(PROGRESS_FILE, progress, options["append"])
-    writeout(SAVE_FILE, save, options["append"])
+    writeout(SAVE_FILE, save)
 
     sys.exit(0)
 
