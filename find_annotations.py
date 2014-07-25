@@ -333,6 +333,11 @@ def find_annotations(content, start, **options):
     removal_pat = re.compile(r'~~~~REM_START~~~~.*?~~~~REM_END~~~~', re.DOTALL)
     content = removal_pat.sub('', content)
 
+    removal_fix_pat = re.compile(r'(\s*)~~~~REM_START~~~~(.*?)\n(\s*)\\end{equation}')
+    content = removal_fix_pat.sub(r'\1\2\n\3\\end{equation}', content)
+
+    save_state(comment_str, content, options)
+
     print("DONE")
 
     return content
@@ -350,10 +355,19 @@ def _quick_exit(progress, save, options):
 
     print("-" * 35 + "QUITTING" + "-" * 35 + "\n")
 
-    writeout(PROGRESS_FILE, progress, options["append"])
-    writeout(SAVE_FILE, save)
+    save_state(progress, save, options)
 
     sys.exit(0)
+
+def save_state(progress, save, options):
+    """
+    Save program state into files specified by
+    PROGRESS_FILE and SAVE_FILE.
+    """
+
+    writeout(PROGRESS_FILE, progress, options["append"])
+    writeout(SAVE_FILE, save)
+    
 
 #checks if the user want to quit and takes appropriate action if they do
 def _is_quit(result):
