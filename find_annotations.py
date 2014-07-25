@@ -453,8 +453,12 @@ def make_annotation_query(line, context, assoc_eqs):
     #create however many annotations there are
     for i in range(num_annotations):
 
-        type = get_input("Enter the type of annotation: (c)onstraint, (s)ubstitution), (n)ote, na(m)e, (p)roof:", set(["c", "s", "n", "m", "p"]), wait=False)
-    
+        annotation_type = get_input("Enter the type of annotation: (c)onstraint, (s)ubstitution), (n)ote, na(m)e, (p)roof:", set(["c", "s", "n", "m", "p"]), wait=False)
+
+        #quit if user presses q
+        if annotation_type == "q":
+            return ["QUIT"]    
+
         annotation = get_input("Enter the actual text of the annotation:")
 
         print("\nThe predicted associated equations are:") 
@@ -465,14 +469,18 @@ def make_annotation_query(line, context, assoc_eqs):
 
         correct_eqs = get_input("Are these correct? (y/n):", yes_no_responses, wait=False)
 
-        #quit if the user types q
-        if correct_eqs == "q":
-            return ["QUIT"]
- 
         #if the equations are incorrect, find out if we need to add equations or remove them
         while correct_eqs == "n" or correct_eqs == "no" or len(assoc_eqs) == 0:
 
+            #quit if the user types q
+            if correct_eqs == "q":
+                return ["QUIT"]
+ 
             add_remove = get_input("Would you like to add, remove, or select equations?: (a)dd/(r)emove/(s)elect:", set(["a", "r", "s"]), wait=False)
+
+            #quit if user presses q
+            if add_remove == "q":
+                return ["QUIT"]    
 
             #inform user that they need an equation with the annotation
             if len(assoc_eqs) == 0:
@@ -535,7 +543,7 @@ def make_annotation_query(line, context, assoc_eqs):
             correct_eqs = get_input("Are these correct? (y/n):", yes_no_responses, wait=False)
 
         print("Annotation added\n---------------------------------------------")
-        to_return.append(InputResponse(type, annotation, frozenset(assoc_eqs)))
+        to_return.append(InputResponse(annotation_type, annotation, frozenset(assoc_eqs)))
 
     return to_return
 
