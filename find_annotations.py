@@ -147,14 +147,14 @@ def find_annotations(content, start, **options):
             before = ""
             sentence = sentence[sentence.find("\\" + sectioning):]
 
-            current = snum + 2
+            line_ind = snum + 2
 
             #keep adding sentences to after
-            while (current < num_sentences
+            while (line_ind < num_sentences
                 and ("\\" + sectioning) not in after):
 
-                after = ''.join([after, every_sentence[current].group()])
-                current += 1
+                after = ''.join([after, every_sentence[line_ind].group()])
+                line_ind += 1
 
             to_join = []
 
@@ -163,7 +163,9 @@ def find_annotations(content, start, **options):
             current = after_lines[line_ind] 
  
             #keep adding lines until the start of the next section
-            while ("\\" + sectioning) not in current:
+            while (("\\" + sectioning) not in current
+                and line_ind + 1 < len(after_lines)):
+
                 to_join.append(current)
 
                 line_ind += 1
