@@ -376,7 +376,12 @@ def find_annotations(content, start, **options):
 
     save_state(comment_str, content, options)
 
-    os.delete(SAVE_FILE)
+    #delete the save file when we're done
+    try:
+        os.remove(SAVE_FILE)
+    except OSError:
+        print(("THE SAVE FILE COULD NOT BE REMOVED. PLEASE REMOVE IT "
+               "MANUALLY WITH rm .save")
 
     print("DONE")
 
