@@ -179,7 +179,7 @@ def get_last_line(fname):
 
     #get last line
     with open(fname, "r+") as file:
-        all_lines = file.read().split("\n")
+        all_lines = file.readlines()
         last_line = all_lines[-1]        
         del all_lines[-1]
 
@@ -187,14 +187,13 @@ def get_last_line(fname):
     try:
 
         int(last_line)
-        #print("it's a number")      
+
         #write back all the lines except the last one
         with open(fname, "w+") as file:
             for line in all_lines:
                 file.write(line + "\n")    
 
     except ValueError:
-        #print("it's not a number")
         pass
 
     return last_line
