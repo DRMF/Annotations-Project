@@ -5,6 +5,7 @@ indicate that the line may contain an annotation.
 
 import re
 import sys
+import os
 from collections import namedtuple, OrderedDict
 
 from utilities import (readin, writeout, get_input, get_last_line)
@@ -58,8 +59,19 @@ def main():
     #user wants to start over 
     if not options["resume"]:
         start_point = 0
+
+    in_tex = readin(fname)
+
+    #read in from save file if resuming
+    if options["resume"]:
+
+        #read in from save file if it exists
+        try:
+            in_tex = readin(SAVE_FILE)
+        except IOError:
+            print("NO SAVE FILE PRESENT - STARTING OVER")
     
-    output = find_annotations(readin(fname), start_point, **options)
+    output = find_annotations(in_tex, start_point, **options)
 
     #only write out if we haven't already done so (user didn't quit)
     if output is not None:
@@ -282,7 +294,14 @@ def find_annotations(content, start, **options):
             for response in result:
                 responses[response] = snum
 
-        should_delete = get_input("Would you like to delete this sentence \nSTART\n{0}\nEND\n(y/n)".format(sentence), valid=set("ynq"), wait=False)
+        begin_loc = sentence_match.start() + doc_start
+        end_loc = sentence_match.end() + doc_start
+
+        #if an equation is in the sentence, only remove until there
+        if r'\begin{equation}' in sentence:
+            end_loc = content.find(r'\begin{equation}', begin_loc, end_loc)
+
+        should_delete = get_input("Would you like to delete this sentence (fragment):\nSTART\n{0}\nEND\n(y/n)".format(content[begin_loc:end_loc]), valid=set("ynq"), wait=False)
 
         #user wants to quit
         if should_delete == "q":
@@ -293,13 +312,6 @@ def find_annotations(content, start, **options):
 
         #we need to delete the sentence (at least up to the first equation)
         if should_delete:
-
-            begin_loc = sentence_match.start() + doc_start
-            end_loc = sentence_match.end() + doc_start
-
-            #if an equation is in the sentence, only remove until there
-            if r'\begin{equation}' in sentence:
-                end_loc = content.find(r'\begin{equation}', begin_loc, end_loc)
 
             content = content[:begin_loc] + "~~~~REM_START~~~~" + content[begin_loc:end_loc] + "~~~~REM_END~~~~" + content[end_loc:]
 
@@ -363,6 +375,8 @@ def find_annotations(content, start, **options):
     content = removal_fix_pat.sub(r'\1\2\n\3\\end{equation}', content)
 
     save_state(comment_str, content, options)
+
+    os.delete(SAVE_FILE)
 
     print("DONE")
 
