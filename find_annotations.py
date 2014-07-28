@@ -36,9 +36,7 @@ def main():
         fname = sys.argv[1]
         ofname = sys.argv[2]   
 
-    options = {"resume": False, "append": False}
-
-    start_point = 0
+    options = {"resume": False, "append": False, "start": 0, "offset": 0}
 
     #if file does not exist, no endline
     try:
@@ -48,17 +46,20 @@ def main():
     
     #if last line is a number, give user option to resume or start over
     try:
-        start_point = int(endline.strip())
 
-        print("Existing file ends at sentence #{0}".format(start_point))
+        start_line = int(endline.strip())
+
+        print("Existing file ends at sentence #{0}".format(start_line))
         options = get_options()
+
+        options["start"] = start_line
 
     except ValueError:
         pass
 
     #user wants to start over 
     if not options["resume"]:
-        start_point = 0
+        options["start"] = 0
 
     in_tex = readin(fname)
 
@@ -70,14 +71,15 @@ def main():
             in_tex = readin(SAVE_FILE)
         except IOError:
             print("NO SAVE FILE PRESENT - STARTING OVER")
+            options["resume"] = False
     
-    output = find_annotations(in_tex, start_point, **options)
+    output = find_annotations(in_tex, **options)
 
     #only write out if we haven't already done so (user didn't quit)
     if output is not None:
         writeout(ofname, output, options["append"])
  
-def find_annotations(content, start, **options):
+def find_annotations(content, **options):
     """
     Finds possible annotations in the text and puts them in equations.
 
@@ -112,6 +114,12 @@ def find_annotations(content, start, **options):
     
     every_sentence = list(sentence_pat.finditer(content[doc_start:]))
     num_sentences = len(every_sentence)
+
+    start = 0
+
+    #set offset and start
+    if options["resume"]:
+        start = options["start"]    
 
     #go through each sentence
     #LOOPSTART
