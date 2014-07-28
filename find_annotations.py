@@ -378,7 +378,7 @@ def find_annotations(content, start, **options):
         os.remove(SAVE_FILE)
     except OSError:
         print(("THE SAVE FILE COULD NOT BE REMOVED. PLEASE REMOVE IT "
-               "MANUALLY WITH rm .save")
+               "MANUALLY WITH rm .save"))
 
     print("DONE")
 
