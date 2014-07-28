@@ -41,7 +41,7 @@ def main():
     #if file does not exist, no endline
     try:
         endline = get_last_line(PROGRESS_FILE)
-    except IOError as ie:
+    except IOError:
         endline = "" 
     
     #if last line is a number, give user option to resume or start over
@@ -77,7 +77,7 @@ def main():
 
     #only write out if we haven't already done so (user didn't quit)
     if output is not None:
-        writeout(ofname, output, options["append"])
+        writeout(ofname, output)
  
 def find_annotations(content, **options):
     """
@@ -364,7 +364,7 @@ def find_annotations(content, **options):
     comment_str = _create_comment_string(responses)
     content = comment_str + content
 
-    comment_insertion_pat = re.compile(r'^% *\\(?P<name>.*?){(?P<annotation>.*?)}~~~~(?P<eq_id>.*?)~~~~(?P<between>.*?)(?P<equation>\\begin{equation}\\label{(?P=eq_id)}.*?\\end{equation})', re.DOTALL)
+    comment_insertion_pat = re.compile(r'^(?:\d+:)?{(?P<eq_id>.*?)}% *\\(?P<name>.*?){(?P<annotation>.*?)}(?P<between>.*?)(?P<equation>\\begin{equation}\\label{(?P=eq_id)}.*?\\end{equation})', re.DOTALL)
 
     #as long as there is a match in content, keep replacing
     while comment_insertion_pat.search(content):
