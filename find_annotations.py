@@ -115,6 +115,7 @@ def find_annotations(content, **options):
     every_sentence = list(sentence_pat.finditer(content[doc_start:]))
     num_sentences = len(every_sentence)
 
+    rem_offset = doc_start
     start = 0
 
     #set offset and start
@@ -299,8 +300,12 @@ def find_annotations(content, **options):
             for response in result:
                 responses[response] = snum
 
-        begin_loc = sentence_match.start() + doc_start
-        end_loc = sentence_match.end() + doc_start
+        begin_loc = sentence_match.start() + rem_offset
+        end_loc = sentence_match.end() + rem_offset
+
+        #if there is an end equation at the beginning of the sentence, move past it
+        if content[begin_loc:].strip().startswith(r'\end{equation}'):
+            begin_loc = content.find(r'\end{equation}', begin_loc, end_loc) + len(r'\end{equation}')
 
         #if an equation is in the sentence, only remove until there
         if r'\begin{equation}' in sentence:
@@ -319,6 +324,9 @@ def find_annotations(content, **options):
         if should_delete:
 
             content = content[:begin_loc] + "~~~~REM_START~~~~" + content[begin_loc:end_loc] + "~~~~REM_END~~~~" + content[end_loc:]
+
+            rem_offset += len("~~~~REM_START~~~~")
+            rem_offset += len("~~~~REM_END~~~~")
 
         #shouldn't delete sentence, ask about keywords
         else:
