@@ -141,9 +141,6 @@ def find_annotations(content, start, **options):
         sentence = sentence.strip()
         sentence = re.sub(r'\n{2,}', r'\n', sentence)
 
-        #take out lines that start with \index
-        sentence = "\n".join(line for line in sentence.split("\n") if not line.lstrip().startswith("\\index"))
-
         sectioning = "" 
 
         #see if the section or subsection is referenced
