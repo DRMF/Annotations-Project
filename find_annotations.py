@@ -102,6 +102,7 @@ def find_annotations(content, start, **options):
     num_sentences = len(every_sentence)
 
     #go through each sentence
+    #LOOPSTART
     for snum, sentence_match in enumerate(every_sentence):
 
         #don't start till we get to starting point
@@ -249,6 +250,7 @@ def find_annotations(content, start, **options):
             assoc_equations = assoc_equations[2:]
 
         seen = set()
+        indicator_found = False
 
         #go through each indicator
         for indicator in indicators:
@@ -263,7 +265,12 @@ def find_annotations(content, start, **options):
                     or (" " + indicator + ". " in line)):
 
                     annotation_lines.append("{0}: {1}".format(indicator, line.lstrip()))
+                    indicator_found = True
                     seen.add(line)
+
+        #don't do anything else if there aren't any indicators in the sentence
+        if not indicator_found:
+            continue
 
         #ask user about each possible annotation
         for line in annotation_lines:
@@ -275,7 +282,12 @@ def find_annotations(content, start, **options):
             for response in result:
                 responses[response] = snum
 
-        should_delete = get_input("Would you like to delete this sentence? (y/n)", valid=set("ynq"), wait=False)
+        should_delete = get_input("Would you like to delete this sentence \nSTART\n{0}\nEND\n(y/n)".format(sentence), valid=set("ynq"), wait=False)
+
+        #user wants to quit
+        if should_delete == "q":
+            to_write = "{0}{1}".format(_create_comment_string(responses), snum)
+            _quick_exit(to_write, content, options)
 
         should_delete = should_delete == "y"
 
@@ -295,6 +307,12 @@ def find_annotations(content, start, **options):
         else:
 
             should_add_word = get_input("Would you like to add a keyword? (y/n)", valid=set("yn"), wait=False)
+
+            #user wants to quit
+            if should_add_word == "q":
+                to_write = "{0}{1}".format(_create_comment_string(responses), snum)
+                _quick_exit(to_write, content, options)
+
             should_add_word = should_add_word == "y"
             
             #user wants to add a keyword
@@ -306,6 +324,12 @@ def find_annotations(content, start, **options):
                 indicators.append(new_keyword.title())
 
             store_current = get_input("Would you like to store an annotation on this line? (y/n)", valid=set("yn"), wait=False)
+
+            #user wants to quit
+            if store_current == "q":
+                to_write = "{0}{1}".format(_create_comment_string(responses), snum)
+                _quick_exit(to_write, content, options)
+
             store_current = store_current == "y"
 
             #user wants to store an annotation on this line
@@ -317,6 +341,8 @@ def find_annotations(content, start, **options):
                 #map each InputResponse to its sentence number
                 for response in result:
                     responses[response] = snum
+
+    #LOOPEND
 
     comment_str = _create_comment_string(responses)
     content = comment_str + content
@@ -367,7 +393,6 @@ def save_state(progress, save, options):
 
     writeout(PROGRESS_FILE, progress, options["append"])
     writeout(SAVE_FILE, save)
-    
 
 #checks if the user want to quit and takes appropriate action if they do
 def _is_quit(result):
@@ -386,7 +411,7 @@ def _create_comment_string(responses):
     for response in responses:
 
         seq_num = responses[response]
-        comment_str = ''.join(set([comment_str, input_to_comment(response, seq_num)]))
+        comment_str = ''.join([comment_str, input_to_comment(response, seq_num)])
 
     return comment_str
 
@@ -448,6 +473,11 @@ def make_annotation_query(line, context, assoc_eqs):
     to_return = []
 
     num_annotations = get_input("Enter the number of annotations on the line (1-9):", set(["1","2","3","4","4","5","6","7","8","9"]), wait=False)
+
+    #user wants to quit
+    if num_annotations == "q":
+        return ["QUIT"]
+
     num_annotations = int(num_annotations)
 
     #create however many annotations there are
@@ -470,7 +500,7 @@ def make_annotation_query(line, context, assoc_eqs):
         correct_eqs = get_input("Are these correct? (y/n):", yes_no_responses, wait=False)
 
         #if the equations are incorrect, find out if we need to add equations or remove them
-        while correct_eqs == "n" or correct_eqs == "no" or len(assoc_eqs) == 0:
+        while correct_eqs != "y" or len(assoc_eqs) == 0:
 
             #quit if the user types q
             if correct_eqs == "q":
@@ -639,4 +669,3 @@ def _print_eqs(eq_container):
 
 if __name__ == "__main__":
     main()
-
