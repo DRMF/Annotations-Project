@@ -33,7 +33,7 @@ def main():
     else:
 
         fname = sys.argv[1]
-        ofname = sys.argv[2]   
+        ofname = sys.argv[2]
 
     options = {"resume": False, "append": False, "start": 0, "offset": 0}
 
@@ -52,8 +52,11 @@ def main():
         options = get_options()
 
         options["start"] = start_line
+        #print("found start line")
 
     except ValueError:
+        #print("didn't find start line")
+        #print("endline: {0}".format(endline))
         pass
 
     #user wants to start over 
