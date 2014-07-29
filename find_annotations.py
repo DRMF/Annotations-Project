@@ -112,7 +112,7 @@ def find_annotations(content, **options):
 
     responses = OrderedDict()
 
-    doc_start = content.find("\\begin{document}") + len(r'\begin{document}')
+    doc_start = content.find("\\begin{document}")
     
     every_sentence = list(sentence_pat.finditer(content[doc_start:]))
     num_sentences = len(every_sentence)
@@ -275,6 +275,10 @@ def find_annotations(content, **options):
         #go through each indicator
         for indicator in indicators:
 
+            #only reset the tracker if we haven't found an indicator yet
+            if not indicator_found:
+                ind_loc = 0
+
             #go through each line in the sentence so we can print out the one with the indicator 
             for line in sentence.split("\n"):
 
@@ -288,10 +292,15 @@ def find_annotations(content, **options):
                     indicator_found = True
                     seen.add(line)
 
+                #increment tracker until we find first indicator
+                if not indicator_found:
+                    ind_loc += len(line) + 1
+
         #don't do anything else if there aren't any indicators in the sentence
         if not indicator_found:
             continue
 
+        #assert ind_loc < len(sentence), "found: {3} - (outside) {0} not < {1} - {2}".format(ind_loc, len(sentence), sentence, indicator_found)
         #ask user about each possible annotation
         for line in annotation_lines:
 
@@ -302,16 +311,32 @@ def find_annotations(content, **options):
             for response in result:
                 responses[response] = snum
 
-        begin_loc = sentence_match.start() + rem_offset
+
+        begin_loc = sentence_match.start() + rem_offset + ind_loc
         end_loc = sentence_match.end() + rem_offset
+
+        before = (begin_loc, end_loc)
 
         #if there is an end equation at the beginning of the sentence, move past it
         if content[begin_loc:].strip().startswith(r'\end{equation}'):
             begin_loc = content.find(r'\end{equation}', begin_loc, end_loc) + len(r'\end{equation}')
 
         #if an equation is in the sentence, only remove until there
-        if r'\begin{equation}' in sentence:
+        if r'\begin{equation}' in content[begin_loc:end_loc]:
             end_loc = content.find(r'\begin{equation}', begin_loc, end_loc)
+
+        #fragment has an index in it, stop before then
+        if r'\index' in content[begin_loc:end_loc]:
+            end_loc = content.find(r'\index', begin_loc, end_loc) - 1
+
+        newline_loc = content.find('\n', begin_loc, end_loc)
+
+        #first line of the fragment is very short
+        if 0 < newline_loc - begin_loc < 5:
+        
+            #and ending character is }, probably shouldn't be included
+            if content[newline_loc - 1] == "}":
+                begin_loc = newline_loc + 1
 
         should_delete = get_input("Would you like to delete this sentence (fragment):\nSTART\n{0}\nEND\n(y/n)".format(content[begin_loc:end_loc]), valid=set("ynq"), wait=False)
 
