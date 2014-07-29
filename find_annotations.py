@@ -1,6 +1,5 @@
 """
-Prints all lines in the file that contain words which
-indicate that the line may contain an annotation.
+Prints all lines in the file that contain words which indicate that the line may contain an annotation.
 """
 
 import re
@@ -419,8 +418,7 @@ def _quick_exit(progress, save, options):
 
 def save_state(progress, save, options):
     """
-    Save program state into files specified by
-    PROGRESS_FILE and SAVE_FILE.
+    Save program state into files specified by PROGRESS_FILE and SAVE_FILE.
     """
 
     writeout(PROGRESS_FILE, progress, options["append"])
@@ -467,9 +465,10 @@ def make_annotation_query(line, context, assoc_eqs):
     Queries the user for information about the possible annotation.
 
     Will ask the user a series of questions about the annotation
-    and returns an InputResponse tuple containing the result
+    and returns a list of InputResponse tuples containing the result
     of the query. If the annotation was incorrectly identified
-    (i.e. it is not an annotation) an empty tuple will be returned.
+    (i.e. it is not an annotation) a list containing an empty
+    tuple will be returned.
     """
 
     to_join = context.split("\n")
