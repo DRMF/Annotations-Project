@@ -6,6 +6,7 @@ from __future__ import print_function
 
 import re
 import sys
+import os
 
 #remap input function if necessary
 if int(sys.version[0]) >= 3:
@@ -176,6 +177,10 @@ def get_last_line(fname):
 
     all_lines = ""
     last_line = ""
+
+    #file is empty, return empty string
+    if os.stat(fname).st_size == 0:
+        return ""
 
     #get last line
     with open(fname, "r+") as file:
