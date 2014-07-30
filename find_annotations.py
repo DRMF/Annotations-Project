@@ -421,6 +421,8 @@ def find_annotations(content, **options):
 
     fragment = []
 
+    sectioning_pat = re.compile(r'\\((?:sub)?section|paragraph|label|index)')
+
     #go through each line, building the fragments as we go
     #to remove a fragment, perform one sub with empty string
     for line in content.split("\n"):
@@ -431,15 +433,15 @@ def find_annotations(content, **options):
             fragment = []
 
         does_start_eq = line.strip().startswith(r'\begin{equation}')
-        is_index = line.strip().startswith(r'\index')
+        is_sectioning = bool(sectioning_pat.search(line))
 
         #end of fragment if starting eq or index
-        if does_start_eq or is_index:
+        if does_start_eq or is_index or is_sectioning:
 
             if does_start_eq:
                 in_eq = True
 
-            elif is_index:
+            elif is_sectioning:
                 frag_start = True
 
             #only ask to remove if fragment is not empty
