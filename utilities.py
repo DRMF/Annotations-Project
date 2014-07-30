@@ -6,6 +6,7 @@ from __future__ import print_function
 
 import re
 import sys
+import os
 
 #remap input function if necessary
 if int(sys.version[0]) >= 3:
@@ -177,24 +178,26 @@ def get_last_line(fname):
     all_lines = ""
     last_line = ""
 
+    #file is empty, return empty string
+    if os.stat(fname).st_size == 0:
+        return ""
+
     #get last line
     with open(fname, "r+") as file:
-        all_lines = file.read().split("\n")
+        all_lines = file.readlines()
         last_line = all_lines[-1]        
-        del all_lines[-1]
 
     #if the last line is a number, delete it
     try:
 
         int(last_line)
-        #print("it's a number")      
+
         #write back all the lines except the last one
         with open(fname, "w+") as file:
-            for line in all_lines:
+            for line in all_lines[:-1]:
                 file.write(line + "\n")    
 
     except ValueError:
-        #print("it's not a number")
         pass
 
     return last_line

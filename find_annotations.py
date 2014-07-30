@@ -1,13 +1,22 @@
 """
-Prints all lines in the file that contain words which
-indicate that the line may contain an annotation.
+Allows user to add annotations to equations based on the surrounding TeX.
+
+The program also allows users to remove excess material from the file
+after they have processed it manually.
 """
 
 import re
 import sys
+import os
 from collections import namedtuple, OrderedDict
 
 from utilities import (readin, writeout, get_input, get_last_line)
+
+#default name for the progress file
+PROGRESS_FILE = ".bookmark"
+
+#default name for the save file
+SAVE_FILE = ".save"
 
 #remap input and range functions for python 3
 if int(sys.version[0]) >= 3:
@@ -27,39 +36,52 @@ def main():
     else:
 
         fname = sys.argv[1]
-        ofname = sys.argv[2]   
+        ofname = sys.argv[2]
 
-    options = {"resume": False, "append": False}
-
-    start_point = 0
+    options = {"resume": False, "append": False, "start": 0, "offset": 0}
 
     #if file does not exist, no endline
     try:
-        endline = get_last_line(ofname)
-    except IOError as ie:
+        endline = get_last_line(PROGRESS_FILE)
+    except IOError:
         endline = "" 
     
     #if last line is a number, give user option to resume or start over
     try:
-        start_point = int(endline.strip())
 
-        print("Existing file ends at sentence #{0}".format(start_point))
+        start_line = int(endline.strip())
+
+        print("Existing file ends at sentence #{0}".format(start_line))
         options = get_options()
+
+        options["start"] = start_line
 
     except ValueError:
         pass
 
     #user wants to start over 
     if not options["resume"]:
-        start_point = 0
+        options["start"] = 0
+
+    in_tex = readin(fname)
+
+    #read in from save file if resuming
+    if options["resume"]:
+
+        #read in from save file if it exists
+        try:
+            in_tex = readin(SAVE_FILE)
+        except IOError:
+            print("NO SAVE FILE PRESENT - STARTING OVER")
+            options["resume"] = False
     
-    output = find_annotations(readin(fname), ofname, start_point, **options)
+    output = find_annotations(in_tex, **options)
 
     #only write out if we haven't already done so (user didn't quit)
-    if output:
-        writeout(ofname, output, options["append"])
+    if output is not None:
+        writeout(ofname, output)
  
-def find_annotations(content, out_deck, start, **options):
+def find_annotations(content, **options):
     """
     Finds possible annotations in the text and puts them in equations.
 
@@ -92,10 +114,18 @@ def find_annotations(content, out_deck, start, **options):
 
     doc_start = content.find("\\begin{document}")
     
-    every_sentence = sentence_pat.findall(content[doc_start:])
+    every_sentence = list(sentence_pat.finditer(content[doc_start:]))
+    num_sentences = len(every_sentence)
+
+    rem_offset = doc_start
+    start = 0
+
+    #set offset and start
+    if options["resume"]:
+        start = options["start"]    
 
     #go through each sentence
-    for snum, sentence in enumerate(every_sentence):
+    for snum, sentence_match in enumerate(every_sentence):
 
         #don't start till we get to starting point
         if snum < start:
@@ -104,23 +134,22 @@ def find_annotations(content, out_deck, start, **options):
         assoc_equations = []
         annotation_lines = []
 
+        sentence = sentence_match.group()
+
         before = ""
 
         #this isn't the first sentence, get the previous sentence
         if snum != 0:
-            before = every_sentence[snum - 1]
+            before = every_sentence[snum - 1].group()
 
         after = ""
 
         #this isn't the last sentence, get the next sentence
-        if snum != len(every_sentence) - 1:
-            after = every_sentence[snum + 1]
+        if snum != num_sentences - 1:
+            after = every_sentence[snum + 1].group()
 
         sentence = sentence.strip()
         sentence = re.sub(r'\n{2,}', r'\n', sentence)
-
-        #take out lines that start with \index
-        sentence = "\n".join(line for line in sentence.split("\n") if not line.lstrip().startswith("\\index"))
 
         sectioning = "" 
 
@@ -138,14 +167,14 @@ def find_annotations(content, out_deck, start, **options):
             before = ""
             sentence = sentence[sentence.find("\\" + sectioning):]
 
-            current = snum + 2
+            line_ind = snum + 2
 
             #keep adding sentences to after
-            while (current < len(every_sentence)
+            while (line_ind < num_sentences
                 and ("\\" + sectioning) not in after):
 
-                after = ''.join([after, every_sentence[current]])
-                current += 1
+                after = ''.join([after, every_sentence[line_ind].group()])
+                line_ind += 1
 
             to_join = []
 
@@ -154,7 +183,9 @@ def find_annotations(content, out_deck, start, **options):
             current = after_lines[line_ind] 
  
             #keep adding lines until the start of the next section
-            while ("\\" + sectioning) not in current:
+            while (("\\" + sectioning) not in current
+                and line_ind + 1 < len(after_lines)):
+
                 to_join.append(current)
 
                 line_ind += 1
@@ -177,10 +208,10 @@ def find_annotations(content, out_deck, start, **options):
             main_name = match.group("main_name")
             
             #keep adding to after until we have the whole range
-            while (current < len(every_sentence)
+            while (current < num_sentences
                 and r'\label{' + end_id + '}' not in after):
 
-                to_add = every_sentence[current]
+                to_add = every_sentence[current].group()
 
                 #only add if it has a relevant equation in it
                 if r'\label{' in to_add:
@@ -219,7 +250,7 @@ def find_annotations(content, out_deck, start, **options):
             #keep looking backward until we have a match
             while not eq_match and current > 0:
 
-                search_text = ''.join([every_sentence[current], search_text])
+                search_text = ''.join([every_sentence[current].group(), search_text])
                 eq_match = eq_pat.search(search_text) 
                 current -= 1
                 
@@ -238,9 +269,14 @@ def find_annotations(content, out_deck, start, **options):
             assoc_equations = assoc_equations[2:]
 
         seen = set()
+        indicator_found = False
 
         #go through each indicator
         for indicator in indicators:
+
+            #only reset the tracker if we haven't found an indicator yet
+            if not indicator_found:
+                ind_loc = 0
 
             #go through each line in the sentence so we can print out the one with the indicator 
             for line in sentence.split("\n"):
@@ -252,43 +288,241 @@ def find_annotations(content, out_deck, start, **options):
                     or (" " + indicator + ". " in line)):
 
                     annotation_lines.append("{0}: {1}".format(indicator, line.lstrip()))
+                    indicator_found = True
                     seen.add(line)
+
+                #increment tracker until we find first indicator
+                if not indicator_found:
+                    ind_loc += len(line) + 1
+
+        #don't do anything else if there aren't any indicators in the sentence
+        if not indicator_found:
+            continue
 
         #ask user about each possible annotation
         for line in annotation_lines:
 
-            result = make_annotation_query(line, context, assoc_equations)
-
-            #user wants to quit, write out file and exit
-            if "QUIT" in result:
-
-                print("-" * 40 + "QUITTING" + "-" * 40 + "\n")
-
-                to_write = "{0}{1}".format(_create_comment_string(responses), snum)
-
-                writeout(out_deck, to_write, append=options["append"])
-                return ""
+            to_write = "{0}{1}".format(_create_comment_string(responses), snum)
+            result = _check_and_quit(make_annotation_query(line, context, assoc_equations), to_write, content, options)
 
             #map each InputResponse to the sentence number
             for response in result:
                 responses[response] = snum
 
+
+        begin_loc = sentence_match.start() + rem_offset + ind_loc
+        end_loc = sentence_match.end() + rem_offset
+
+        before = (begin_loc, end_loc)
+
+        #if there is an end equation at the beginning of the sentence, move past it
+        if content[begin_loc:].strip().startswith(r'\end{equation}'):
+            begin_loc = content.find(r'\end{equation}', begin_loc, end_loc) + len(r'\end{equation}')
+
+        #if an equation is in the sentence, only remove until there
+        if r'\begin{equation}' in content[begin_loc:end_loc]:
+            end_loc = content.find(r'\begin{equation}', begin_loc, end_loc)
+
+        #fragment has an index in it, stop before then
+        if r'\index' in content[begin_loc:end_loc]:
+            end_loc = content.find(r'\index', begin_loc, end_loc) - 1
+
+        newline_loc = content.find('\n', begin_loc, end_loc)
+
+        #first line of the fragment is very short
+        if 0 < newline_loc - begin_loc < 5:
+        
+            #and ending character is }, probably shouldn't be included
+            if content[newline_loc - 1] == "}":
+                begin_loc = newline_loc + 1
+
+        should_delete = get_input("Would you like to delete this sentence (fragment):\nSTART\n{0}\nEND\n(y/n)".format(content[begin_loc:end_loc]), valid=set("ynq"), wait=False)
+
+        #user wants to quit
+        if should_delete == "q":
+            to_write = "{0}{1}".format(_create_comment_string(responses), snum)
+            _quick_exit(to_write, content, options)
+
+        should_delete = should_delete == "y"
+
+        #we need to delete the sentence (at least up to the first equation)
+        if should_delete:
+
+            content = content[:begin_loc] + "~~~~REM_START~~~~" + content[begin_loc:end_loc] + "~~~~REM_END~~~~" + content[end_loc:]
+
+            rem_offset += len("~~~~REM_START~~~~")
+            rem_offset += len("~~~~REM_END~~~~")
+
+        #shouldn't delete sentence, ask about keywords
+        else:
+
+            should_add_word = get_input("Would you like to add a keyword? (y/n)", valid=set("yn"), wait=False)
+
+            #user wants to quit
+            if should_add_word == "q":
+                to_write = "{0}{1}".format(_create_comment_string(responses), snum)
+                _quick_exit(to_write, content, options)
+
+            should_add_word = should_add_word == "y"
+            
+            #user wants to add a keyword
+            if should_add_word: 
+
+                new_keyword = get_input("Enter the new keyword:")
+
+                indicators.append(new_keyword)
+                indicators.append(new_keyword.title())
+
+            store_current = get_input("Would you like to store an annotation on this line? (y/n)", valid=set("yn"), wait=False)
+
+            #user wants to quit
+            if store_current == "q":
+                to_write = "{0}{1}".format(_create_comment_string(responses), snum)
+                _quick_exit(to_write, content, options)
+
+            store_current = store_current == "y"
+
+            #user wants to store an annotation on this line
+            if store_current:
+
+                to_write = "{0}{1}".format(_create_comment_string(responses), snum)
+                result = _check_and_quit(make_annotation_query("", context, assoc_equations), to_write, content, options)
+
+                #map each InputResponse to its sentence number
+                for response in result:
+                    responses[response] = snum
+
     comment_str = _create_comment_string(responses)
     content = comment_str + content
 
-    comment_insertion_pat = re.compile(r'^% *\\(?P<name>.*?){(?P<annotation>.*?)}~~~~(?P<eq_id>.*?)~~~~(?P<between>.*?)(?P<equation>\\begin{equation}\\label{(?P=eq_id)}.*?\\end{equation})', re.DOTALL)
+    comment_insertion_pat = re.compile(r'^(?:\d+:)?{(?P<eq_id>.*?)}% *\\(?P<name>.*?){(?P<annotation>.*?)}(?P<between>.*?)(?P<equation>\\begin{equation}\\label{(?P=eq_id)}.*?\\end{equation})', re.DOTALL)
 
     #as long as there is a match in content, keep replacing
-#    while comment_insertion_pat.search(content):
-#        content = comment_insertion_pat.sub(_insert_comment, content)
-#        content = content[1:]   #take out empty line
+    while comment_insertion_pat.match(content):
+        content = comment_insertion_pat.sub(_insert_comment, content)
+        content = content[1:]   #take out empty line
 
-    #equation_fixer_pat = re.compile(r'\\begin{equation}(?P<before>.*?)(?P<comment>\n%.*?\n)(?P<after>[^%].+?\n)\\end{equation}', re.DOTALL)
-    #content = equation_fixer_pat.sub(r'\\begin{equation}\g<before>\g<after>\g<comment>\\end{equation}', content)
+    removal_fix_pat = re.compile(r'(\s*)~~~~REM_START~~~~(.*?)\n(\s*)\\end{equation}')
+    content = removal_fix_pat.sub(r'\1\2\n\3\\end{equation}', content)
+
+    removal_fix_pat = re.compile(r'\\index{(.*?)}\s*~~~~REM_END~~~~')
+    content = removal_fix_pat.sub(r'~~~~REM_END~~~~\\index{\1}', content)
+
+    removal_pat = re.compile(r'~~~~REM_START~~~~.*?~~~~REM_END~~~~', re.DOTALL)
+    content = removal_pat.sub('', content)
+
+    save_state(comment_str, content, options)
+
+    current_loc = 0
+
+    in_eq = False
+    start_frag = True
+
+    fragment = []
+
+    #go through each line, building the fragments as we go
+    #to remove a fragment, perform one sub with empty string
+    for line in content.split("\n"):
+
+        #starting fragment, set start location
+        if start_frag:
+            start_frag = False
+            fragment = []
+
+        does_start_eq = line.strip().startswith(r'\begin{equation}')
+        is_index = line.strip().startswith(r'\index')
+
+        #end of fragment if starting eq or index
+        if does_start_eq or is_index:
+
+            if does_start_eq:
+                in_eq = True
+
+            elif is_index:
+                frag_start = True
+
+            #only ask to remove if fragment is not empty
+            if any(f.strip() for f in fragment) and fragment:
+
+                print("\n")
+                should_remove = get_input("Would you like to delete this fragment?\nSTART\n{0}\nEND\n(y/n)".format('\n'.join(fragment)), valid=set("yn"), wait=False)
+
+                #quit if user wants
+                if should_remove == "q":
+                    _quick_exit(comment_str, content, options)
+
+                should_remove = should_remove == "y"
+            
+                #sub out the fragment one time
+                if should_remove:
+                    content = remove_one(fragment, content, current_loc)
+
+            start_frag = True
+
+        #not in equation
+        if not in_eq:
+
+            #not in index either, add to line
+            if not is_index:
+                fragment.append(line)
+
+        #we're exiting an equation
+        if line.strip().startswith(r'\end{equation}'):
+            in_eq = False
+
+        current_loc += len(line)
+
+    #delete the save file when we're done
+    try:
+        os.remove(SAVE_FILE)
+    except OSError:
+        print(("THE SAVE FILE COULD NOT BE REMOVED. PLEASE REMOVE IT "
+               "MANUALLY WITH rm .save"))
 
     print("DONE")
 
-    return comment_str
+    return content
+
+def remove_one(remove_lines, content, start):
+    """
+    Removes one occurence of to_remove from content starting at start.
+    """
+
+    remove_lines[:] = [re.escape(line) for line in remove_lines]
+    regex = '\s*'.join(remove_lines)
+
+    to_return, subs = re.subn(regex, '', content, 1)
+
+    return to_return
+
+#checks if the user wants to quit, and does so if necessary
+def _check_and_quit(response, progress, save, options):
+
+    if _is_quit(response):
+        _quick_exit(progress, save, options)
+
+    return response
+
+#exits the program after saving the necessary files
+def _quick_exit(progress, save, options):
+
+    print("-" * 35 + "QUITTING" + "-" * 35 + "\n")
+
+    save_state(progress, save, options)
+
+    sys.exit(0)
+
+def save_state(progress, save, options):
+    """
+    Save program state into files specified by PROGRESS_FILE and SAVE_FILE.
+    """
+
+    writeout(PROGRESS_FILE, progress, options["append"])
+    writeout(SAVE_FILE, save)
+
+#checks if the user want to quit and takes appropriate action if they do
+def _is_quit(result):
+    return "QUIT" in result
 
 #returns the "comment_str" to be written given the responses list
 def _create_comment_string(responses):
@@ -303,7 +537,7 @@ def _create_comment_string(responses):
     for response in responses:
 
         seq_num = responses[response]
-        comment_str = ''.join(set([comment_str, input_to_comment(response, seq_num)]))
+        comment_str = ''.join([comment_str, input_to_comment(response, seq_num)])
 
     return comment_str
 
@@ -327,9 +561,10 @@ def make_annotation_query(line, context, assoc_eqs):
     Queries the user for information about the possible annotation.
 
     Will ask the user a series of questions about the annotation
-    and returns an InputResponse tuple containing the result
+    and returns a list of InputResponse tuples containing the result
     of the query. If the annotation was incorrectly identified
-    (i.e. it is not an annotation) an empty tuple will be returned.
+    (i.e. it is not an annotation) a list containing an empty
+    tuple will be returned.
     """
 
     to_join = context.split("\n")
@@ -365,13 +600,22 @@ def make_annotation_query(line, context, assoc_eqs):
     to_return = []
 
     num_annotations = get_input("Enter the number of annotations on the line (1-9):", set(["1","2","3","4","4","5","6","7","8","9"]), wait=False)
+
+    #user wants to quit
+    if num_annotations == "q":
+        return ["QUIT"]
+
     num_annotations = int(num_annotations)
 
     #create however many annotations there are
     for i in range(num_annotations):
 
-        type = get_input("Enter the type of annotation: (c)onstraint, (s)ubstitution), (n)ote, na(m)e, (p)roof:", set(["c", "s", "n", "m", "p"]), wait=False)
-    
+        annotation_type = get_input("Enter the type of annotation: (c)onstraint, (s)ubstitution), (n)ote, na(m)e, (p)roof:", set(["c", "s", "n", "m", "p"]), wait=False)
+
+        #quit if user presses q
+        if annotation_type == "q":
+            return ["QUIT"]    
+
         annotation = get_input("Enter the actual text of the annotation:")
 
         print("\nThe predicted associated equations are:") 
@@ -382,14 +626,18 @@ def make_annotation_query(line, context, assoc_eqs):
 
         correct_eqs = get_input("Are these correct? (y/n):", yes_no_responses, wait=False)
 
-        #quit if the user types q
-        if correct_eqs == "q":
-            return ["QUIT"]
- 
         #if the equations are incorrect, find out if we need to add equations or remove them
-        while correct_eqs == "n" or correct_eqs == "no" or len(assoc_eqs) == 0:
+        while correct_eqs != "y" or len(assoc_eqs) == 0:
 
+            #quit if the user types q
+            if correct_eqs == "q":
+                return ["QUIT"]
+ 
             add_remove = get_input("Would you like to add, remove, or select equations?: (a)dd/(r)emove/(s)elect:", set(["a", "r", "s"]), wait=False)
+
+            #quit if user presses q
+            if add_remove == "q":
+                return ["QUIT"]    
 
             #inform user that they need an equation with the annotation
             if len(assoc_eqs) == 0:
@@ -452,7 +700,7 @@ def make_annotation_query(line, context, assoc_eqs):
             correct_eqs = get_input("Are these correct? (y/n):", yes_no_responses, wait=False)
 
         print("Annotation added\n---------------------------------------------")
-        to_return.append(InputResponse(type, annotation, frozenset(assoc_eqs)))
+        to_return.append(InputResponse(annotation_type, annotation, frozenset(assoc_eqs)))
 
     return to_return
 
@@ -548,4 +796,3 @@ def _print_eqs(eq_container):
 
 if __name__ == "__main__":
     main()
-

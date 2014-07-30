@@ -8,11 +8,15 @@ This project is meant to expedite the process of finding annotations
 
 The program should be run as follows:
 
-    python find_annotations.py sourcefile iofile
+    python find_annotations.py inputfile ouputfile
 
 Where:
 
-* `sourcefile` is a file containing the TeX source you wish to process
-* `iofile` is a file that will be both read from and written to over
-the course of the program, and can be blank/nonexistant the first
-time the program is run
+* `inputfile` is a file containing the TeX source you wish to process
+* `outputfile` is the file to write the processed TeX to
+
+> **NOTE:**
+>
+> `outputfile` will only be written to if the entire input file is
+> processed to completion. Otherwise, the output will be written to
+> the `.save` file.
