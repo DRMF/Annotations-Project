@@ -405,7 +405,7 @@ def find_annotations(content, **options):
     comment_insertion_pat = re.compile(r'^(?:\d+:)?{(?P<eq_id>.*?)}% *\\(?P<name>.*?){(?P<annotation>.*?)}(?P<between>.*?)(?P<equation>\\begin{equation}\\label{(?P=eq_id)}.*?\\end{equation})', re.DOTALL)
 
     #as long as there is a match in content, keep replacing
-    while comment_insertion_pat.search(content):
+    while comment_insertion_pat.match(content):
         content = comment_insertion_pat.sub(_insert_comment, content)
         content = content[1:]   #take out empty line
 
