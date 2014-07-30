@@ -613,7 +613,7 @@ def make_annotation_query(line, context, assoc_eqs):
     #create however many annotations there are
     for i in range(num_annotations):
 
-        annotation_type = get_input("Enter the type of annotation: (c)onstraint, (s)ubstitution), (n)ote, na(m)e, (p)roof:", set(["c", "s", "n", "m", "p"]), wait=False)
+        annotation_type = get_input("Enter the type of annotation: (c)onstraint, (s)ubstitution, (n)ote, na(m)e, (p)roof:", set(["c", "s", "n", "m", "p"]), wait=False)
 
         #quit if user presses q
         if annotation_type == "q":
