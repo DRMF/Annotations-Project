@@ -1,5 +1,8 @@
 """
-Prints all lines in the file that contain words which indicate that the line may contain an annotation.
+Allows user to add annotations to equations based on the surrounding TeX.
+
+The program also allows users to remove excess material from the file
+after they have processed it manually.
 """
 
 import re
