@@ -55,11 +55,8 @@ def main():
         options = get_options()
 
         options["start"] = start_line
-        #print("found start line")
 
     except ValueError:
-        #print("didn't find start line")
-        #print("endline: {0}".format(endline))
         pass
 
     #user wants to start over 
@@ -128,7 +125,6 @@ def find_annotations(content, **options):
         start = options["start"]    
 
     #go through each sentence
-    #LOOPSTART
     for snum, sentence_match in enumerate(every_sentence):
 
         #don't start till we get to starting point
@@ -303,7 +299,6 @@ def find_annotations(content, **options):
         if not indicator_found:
             continue
 
-        #assert ind_loc < len(sentence), "found: {3} - (outside) {0} not < {1} - {2}".format(ind_loc, len(sentence), sentence, indicator_found)
         #ask user about each possible annotation
         for line in annotation_lines:
 
@@ -396,8 +391,6 @@ def find_annotations(content, **options):
                 #map each InputResponse to its sentence number
                 for response in result:
                     responses[response] = snum
-
-    #LOOPEND
 
     comment_str = _create_comment_string(responses)
     content = comment_str + content
