@@ -409,15 +409,75 @@ def find_annotations(content, **options):
         content = comment_insertion_pat.sub(_insert_comment, content)
         content = content[1:]   #take out empty line
 
-    #equation_fixer_pat = re.compile(r'\\begin{equation}(?P<before>.*?)(?P<comment>\n%.*?\n)(?P<after>[^%].+?\n)\\end{equation}', re.DOTALL)
-    #content = equation_fixer_pat.sub(r'\\begin{equation}\g<before>\g<after>\g<comment>\\end{equation}', content)
-    removal_pat = re.compile(r'~~~~REM_START~~~~.*?~~~~REM_END~~~~', re.DOTALL)
-    content = removal_pat.sub('', content)
-
     removal_fix_pat = re.compile(r'(\s*)~~~~REM_START~~~~(.*?)\n(\s*)\\end{equation}')
     content = removal_fix_pat.sub(r'\1\2\n\3\\end{equation}', content)
 
+    removal_fix_pat = re.compile(r'\\index{(.*?)}\s*~~~~REM_END~~~~')
+    content = removal_fix_pat.sub(r'~~~~REM_END~~~~\\index{\1}', content)
+
+    removal_pat = re.compile(r'~~~~REM_START~~~~.*?~~~~REM_END~~~~', re.DOTALL)
+    content = removal_pat.sub('', content)
+
     save_state(comment_str, content, options)
+
+    current_loc = 0
+
+    in_eq = False
+    start_frag = True
+
+    fragment = []
+
+    #go through each line, building the fragments as we go
+    #to remove a fragment, perform one sub with empty string
+    for line in content.split("\n"):
+
+        #starting fragment, set start location
+        if start_frag:
+            start_frag = False
+            fragment = []
+
+        does_start_eq = line.strip().startswith(r'\begin{equation}')
+        is_index = line.strip().startswith(r'\index')
+
+        #end of fragment if starting eq or index
+        if does_start_eq or is_index:
+
+            if does_start_eq:
+                in_eq = True
+
+            elif is_index:
+                frag_start = True
+
+            #only ask to remove if fragment is not empty
+            if any(f.strip() for f in fragment) and fragment:
+
+                print("\n")
+                should_remove = get_input("Would you like to delete this fragment?\nSTART\n{0}\nEND\n(y/n)".format('\n'.join(fragment)), valid=set("yn"), wait=False)
+
+                #quit if user wants
+                if should_remove == "q":
+                    _quick_exit(comment_str, content, options)
+
+                should_remove = should_remove == "y"
+            
+                #sub out the fragment one time
+                if should_remove:
+                    content = remove_one(fragment, content, current_loc)
+
+            start_frag = True
+
+        #not in equation
+        if not in_eq:
+
+            #not in index either, add to line
+            if not is_index:
+                fragment.append(line)
+
+        #we're exiting an equation
+        if line.strip().startswith(r'\end{equation}'):
+            in_eq = False
+
+        current_loc += len(line)
 
     #delete the save file when we're done
     try:
@@ -429,6 +489,18 @@ def find_annotations(content, **options):
     print("DONE")
 
     return content
+
+def remove_one(remove_lines, content, start):
+    """
+    Removes one occurence of to_remove from content starting at start.
+    """
+
+    remove_lines[:] = [re.escape(line) for line in remove_lines]
+    regex = '\s*'.join(remove_lines)
+
+    to_return, subs = re.subn(regex, '', content, 1)
+
+    return to_return
 
 #checks if the user wants to quit, and does so if necessary
 def _check_and_quit(response, progress, save, options):
