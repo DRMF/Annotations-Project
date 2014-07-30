@@ -99,7 +99,8 @@ def find_annotations(content, **options):
         "With", 
         "As", 
         "Throughout", 
-        "In"
+        "In",
+        "Over"
     ]
 
     indicators.extend([indicator.lower() for indicator in indicators])
