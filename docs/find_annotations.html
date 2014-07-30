@@ -1,0 +1,197 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module find_annotations</title>
+</head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong>find_annotations</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a><br><a href="file:/home/aad2/alexDLMF/AnnotationsProject/find_annotations.py">/home/aad2/alexDLMF/AnnotationsProject/find_annotations.py</a></font></td></tr></table>
+    <p><tt>Allows&nbsp;user&nbsp;to&nbsp;add&nbsp;annotations&nbsp;to&nbsp;equations&nbsp;based&nbsp;on&nbsp;the&nbsp;surrounding&nbsp;TeX.<br>
+&nbsp;<br>
+The&nbsp;program&nbsp;also&nbsp;allows&nbsp;users&nbsp;to&nbsp;remove&nbsp;excess&nbsp;material&nbsp;from&nbsp;the&nbsp;file<br>
+after&nbsp;they&nbsp;have&nbsp;processed&nbsp;it&nbsp;manually.</tt></p>
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#aa55cc">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Modules</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="os.html">os</a><br>
+</td><td width="25%" valign=top><a href="re.html">re</a><br>
+</td><td width="25%" valign=top><a href="sys.html">sys</a><br>
+</td><td width="25%" valign=top></td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ee77aa">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Classes</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#ee77aa"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl>
+<dt><font face="helvetica, arial"><a href="__builtin__.html#tuple">__builtin__.tuple</a>(<a href="__builtin__.html#object">__builtin__.object</a>)
+</font></dt><dd>
+<dl>
+<dt><font face="helvetica, arial"><a href="find_annotations.html#InputResponse">InputResponse</a>
+</font></dt></dl>
+</dd>
+</dl>
+ <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="InputResponse">class <strong>InputResponse</strong></a>(<a href="__builtin__.html#tuple">__builtin__.tuple</a>)</font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt><a href="#InputResponse">InputResponse</a>(type,&nbsp;annotation,&nbsp;equations)<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%"><dl><dt>Method resolution order:</dt>
+<dd><a href="find_annotations.html#InputResponse">InputResponse</a></dd>
+<dd><a href="__builtin__.html#tuple">__builtin__.tuple</a></dd>
+<dd><a href="__builtin__.html#object">__builtin__.object</a></dd>
+</dl>
+<hr>
+Methods defined here:<br>
+<dl><dt><a name="InputResponse-__getnewargs__"><strong>__getnewargs__</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="InputResponse-__repr__"><strong>__repr__</strong></a>(self)</dt></dl>
+
+<hr>
+Static methods defined here:<br>
+<dl><dt><a name="InputResponse-__new__"><strong>__new__</strong></a>(_cls, type, annotation, equations)</dt></dl>
+
+<hr>
+Data descriptors defined here:<br>
+<dl><dt><strong>annotation</strong></dt>
+<dd><tt>itemgetter(item,&nbsp;...)&nbsp;--&gt;&nbsp;itemgetter&nbsp;object<br>
+&nbsp;<br>
+Return&nbsp;a&nbsp;callable&nbsp;object&nbsp;that&nbsp;fetches&nbsp;the&nbsp;given&nbsp;item(s)&nbsp;from&nbsp;its&nbsp;operand.<br>
+After,&nbsp;f=itemgetter(2),&nbsp;the&nbsp;call&nbsp;f(r)&nbsp;returns&nbsp;r[2].<br>
+After,&nbsp;g=itemgetter(2,5,3),&nbsp;the&nbsp;call&nbsp;g(r)&nbsp;returns&nbsp;(r[2],&nbsp;r[5],&nbsp;r[3])</tt></dd>
+</dl>
+<dl><dt><strong>equations</strong></dt>
+<dd><tt>itemgetter(item,&nbsp;...)&nbsp;--&gt;&nbsp;itemgetter&nbsp;object<br>
+&nbsp;<br>
+Return&nbsp;a&nbsp;callable&nbsp;object&nbsp;that&nbsp;fetches&nbsp;the&nbsp;given&nbsp;item(s)&nbsp;from&nbsp;its&nbsp;operand.<br>
+After,&nbsp;f=itemgetter(2),&nbsp;the&nbsp;call&nbsp;f(r)&nbsp;returns&nbsp;r[2].<br>
+After,&nbsp;g=itemgetter(2,5,3),&nbsp;the&nbsp;call&nbsp;g(r)&nbsp;returns&nbsp;(r[2],&nbsp;r[5],&nbsp;r[3])</tt></dd>
+</dl>
+<dl><dt><strong>type</strong></dt>
+<dd><tt>itemgetter(item,&nbsp;...)&nbsp;--&gt;&nbsp;itemgetter&nbsp;object<br>
+&nbsp;<br>
+Return&nbsp;a&nbsp;callable&nbsp;object&nbsp;that&nbsp;fetches&nbsp;the&nbsp;given&nbsp;item(s)&nbsp;from&nbsp;its&nbsp;operand.<br>
+After,&nbsp;f=itemgetter(2),&nbsp;the&nbsp;call&nbsp;f(r)&nbsp;returns&nbsp;r[2].<br>
+After,&nbsp;g=itemgetter(2,5,3),&nbsp;the&nbsp;call&nbsp;g(r)&nbsp;returns&nbsp;(r[2],&nbsp;r[5],&nbsp;r[3])</tt></dd>
+</dl>
+<hr>
+Methods inherited from <a href="__builtin__.html#tuple">__builtin__.tuple</a>:<br>
+<dl><dt><a name="InputResponse-__add__"><strong>__add__</strong></a>(...)</dt><dd><tt>x.<a href="#InputResponse-__add__">__add__</a>(y)&nbsp;&lt;==&gt;&nbsp;x+y</tt></dd></dl>
+
+<dl><dt><a name="InputResponse-__contains__"><strong>__contains__</strong></a>(...)</dt><dd><tt>x.<a href="#InputResponse-__contains__">__contains__</a>(y)&nbsp;&lt;==&gt;&nbsp;y&nbsp;in&nbsp;x</tt></dd></dl>
+
+<dl><dt><a name="InputResponse-__eq__"><strong>__eq__</strong></a>(...)</dt><dd><tt>x.<a href="#InputResponse-__eq__">__eq__</a>(y)&nbsp;&lt;==&gt;&nbsp;x==y</tt></dd></dl>
+
+<dl><dt><a name="InputResponse-__ge__"><strong>__ge__</strong></a>(...)</dt><dd><tt>x.<a href="#InputResponse-__ge__">__ge__</a>(y)&nbsp;&lt;==&gt;&nbsp;x&gt;=y</tt></dd></dl>
+
+<dl><dt><a name="InputResponse-__getattribute__"><strong>__getattribute__</strong></a>(...)</dt><dd><tt>x.<a href="#InputResponse-__getattribute__">__getattribute__</a>('name')&nbsp;&lt;==&gt;&nbsp;x.name</tt></dd></dl>
+
+<dl><dt><a name="InputResponse-__getitem__"><strong>__getitem__</strong></a>(...)</dt><dd><tt>x.<a href="#InputResponse-__getitem__">__getitem__</a>(y)&nbsp;&lt;==&gt;&nbsp;x[y]</tt></dd></dl>
+
+<dl><dt><a name="InputResponse-__getslice__"><strong>__getslice__</strong></a>(...)</dt><dd><tt>x.<a href="#InputResponse-__getslice__">__getslice__</a>(i,&nbsp;j)&nbsp;&lt;==&gt;&nbsp;x[i:j]<br>
+&nbsp;<br>
+Use&nbsp;of&nbsp;negative&nbsp;indices&nbsp;is&nbsp;not&nbsp;supported.</tt></dd></dl>
+
+<dl><dt><a name="InputResponse-__gt__"><strong>__gt__</strong></a>(...)</dt><dd><tt>x.<a href="#InputResponse-__gt__">__gt__</a>(y)&nbsp;&lt;==&gt;&nbsp;x&gt;y</tt></dd></dl>
+
+<dl><dt><a name="InputResponse-__hash__"><strong>__hash__</strong></a>(...)</dt><dd><tt>x.<a href="#InputResponse-__hash__">__hash__</a>()&nbsp;&lt;==&gt;&nbsp;hash(x)</tt></dd></dl>
+
+<dl><dt><a name="InputResponse-__iter__"><strong>__iter__</strong></a>(...)</dt><dd><tt>x.<a href="#InputResponse-__iter__">__iter__</a>()&nbsp;&lt;==&gt;&nbsp;iter(x)</tt></dd></dl>
+
+<dl><dt><a name="InputResponse-__le__"><strong>__le__</strong></a>(...)</dt><dd><tt>x.<a href="#InputResponse-__le__">__le__</a>(y)&nbsp;&lt;==&gt;&nbsp;x&lt;=y</tt></dd></dl>
+
+<dl><dt><a name="InputResponse-__len__"><strong>__len__</strong></a>(...)</dt><dd><tt>x.<a href="#InputResponse-__len__">__len__</a>()&nbsp;&lt;==&gt;&nbsp;len(x)</tt></dd></dl>
+
+<dl><dt><a name="InputResponse-__lt__"><strong>__lt__</strong></a>(...)</dt><dd><tt>x.<a href="#InputResponse-__lt__">__lt__</a>(y)&nbsp;&lt;==&gt;&nbsp;x&lt;y</tt></dd></dl>
+
+<dl><dt><a name="InputResponse-__mul__"><strong>__mul__</strong></a>(...)</dt><dd><tt>x.<a href="#InputResponse-__mul__">__mul__</a>(n)&nbsp;&lt;==&gt;&nbsp;x*n</tt></dd></dl>
+
+<dl><dt><a name="InputResponse-__ne__"><strong>__ne__</strong></a>(...)</dt><dd><tt>x.<a href="#InputResponse-__ne__">__ne__</a>(y)&nbsp;&lt;==&gt;&nbsp;x!=y</tt></dd></dl>
+
+<dl><dt><a name="InputResponse-__rmul__"><strong>__rmul__</strong></a>(...)</dt><dd><tt>x.<a href="#InputResponse-__rmul__">__rmul__</a>(n)&nbsp;&lt;==&gt;&nbsp;n*x</tt></dd></dl>
+
+<dl><dt><a name="InputResponse-__sizeof__"><strong>__sizeof__</strong></a>(...)</dt><dd><tt>T.<a href="#InputResponse-__sizeof__">__sizeof__</a>()&nbsp;--&nbsp;size&nbsp;of&nbsp;T&nbsp;in&nbsp;memory,&nbsp;in&nbsp;bytes</tt></dd></dl>
+
+<dl><dt><a name="InputResponse-count"><strong>count</strong></a>(...)</dt><dd><tt>T.<a href="#InputResponse-count">count</a>(value)&nbsp;-&gt;&nbsp;integer&nbsp;--&nbsp;return&nbsp;number&nbsp;of&nbsp;occurrences&nbsp;of&nbsp;value</tt></dd></dl>
+
+<dl><dt><a name="InputResponse-index"><strong>index</strong></a>(...)</dt><dd><tt>T.<a href="#InputResponse-index">index</a>(value,&nbsp;[start,&nbsp;[stop]])&nbsp;-&gt;&nbsp;integer&nbsp;--&nbsp;return&nbsp;first&nbsp;index&nbsp;of&nbsp;value.<br>
+Raises&nbsp;ValueError&nbsp;if&nbsp;the&nbsp;value&nbsp;is&nbsp;not&nbsp;present.</tt></dd></dl>
+
+</td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#eeaa77">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Functions</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#eeaa77"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl><dt><a name="-find_annotations"><strong>find_annotations</strong></a>(content, **options)</dt><dd><tt>Finds&nbsp;possible&nbsp;annotations&nbsp;in&nbsp;the&nbsp;text&nbsp;and&nbsp;puts&nbsp;them&nbsp;in&nbsp;equations.<br>
+&nbsp;<br>
+For&nbsp;each&nbsp;possible&nbsp;annotation,&nbsp;prompts&nbsp;the&nbsp;user&nbsp;for&nbsp;input&nbsp;on&nbsp;whether<br>
+it&nbsp;is&nbsp;actually&nbsp;an&nbsp;annotation,&nbsp;and&nbsp;(if&nbsp;it&nbsp;is&nbsp;one)&nbsp;on&nbsp;its&nbsp;properties.<br>
+Returns&nbsp;an&nbsp;updated&nbsp;version&nbsp;of&nbsp;content.</tt></dd></dl>
+ <dl><dt><a name="-get_options"><strong>get_options</strong></a>()</dt><dd><tt>Returns&nbsp;a&nbsp;dictionary&nbsp;of&nbsp;options&nbsp;necessary&nbsp;for&nbsp;the&nbsp;program.</tt></dd></dl>
+ <dl><dt><a name="-input_to_comment"><strong>input_to_comment</strong></a>(response, snum)</dt><dd><tt>Takes&nbsp;`<a href="#InputResponse">InputResponse</a>`&nbsp;and&nbsp;sequence&nbsp;number&nbsp;and&nbsp;returns&nbsp;appropriate&nbsp;comment.<br>
+&nbsp;<br>
+The&nbsp;comment&nbsp;will&nbsp;be&nbsp;placed&nbsp;in&nbsp;the&nbsp;relevant&nbsp;equations.<br>
+&nbsp;<br>
+Example:::<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Given:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;t&nbsp;=&nbsp;'c'<br>
+&nbsp;&nbsp;&nbsp;&nbsp;a&nbsp;=&nbsp;'$\realpart{\rho}&nbsp;&gt;&nbsp;0$'<br>
+&nbsp;&nbsp;&nbsp;&nbsp;e&nbsp;=&nbsp;set(['eq:ZE.EX.PR2'])<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;response&nbsp;=&nbsp;<a href="#InputResponse">InputResponse</a>(type=t,&nbsp;annotation=a,&nbsp;equations=e)&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#-input_to_comment">input_to_comment</a>(response,&nbsp;5)<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Returns:<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;5:{eq:ZE.EX.PR2}%&nbsp;&nbsp;\constraint{$\realpart{\rho}&nbsp;&gt;&nbsp;0$}<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Given:<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;t&nbsp;=&nbsp;'c'<br>
+&nbsp;&nbsp;&nbsp;&nbsp;a&nbsp;=&nbsp;'$\realpart{\rho}&nbsp;&gt;&nbsp;0$'<br>
+&nbsp;&nbsp;&nbsp;&nbsp;e&nbsp;=&nbsp;set(['eq:ZE.EX.PR2',&nbsp;'eq:ZE.EX.PR3'])<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;response&nbsp;=&nbsp;<a href="#InputResponse">InputResponse</a>(type=t,&nbsp;annotation=a,&nbsp;equations=e)<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#-input_to_comment">input_to_comment</a>(response,&nbsp;10)<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Returns:<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;10:{eq:ZE.EX.PR2}%&nbsp;&nbsp;\constraint{$\realpart{\rho}&nbsp;&gt;&nbsp;0$}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;{eq:ZE.EX.PR3}%&nbsp;&nbsp;\constraint{$\realpart{\rho}&nbsp;&gt;&nbsp;0$}</tt></dd></dl>
+ <dl><dt><a name="-main"><strong>main</strong></a>()</dt></dl>
+ <dl><dt><a name="-make_annotation_query"><strong>make_annotation_query</strong></a>(line, context, assoc_eqs)</dt><dd><tt>Queries&nbsp;the&nbsp;user&nbsp;for&nbsp;information&nbsp;about&nbsp;the&nbsp;possible&nbsp;annotation.<br>
+&nbsp;<br>
+Will&nbsp;ask&nbsp;the&nbsp;user&nbsp;a&nbsp;series&nbsp;of&nbsp;questions&nbsp;about&nbsp;the&nbsp;annotation<br>
+and&nbsp;returns&nbsp;a&nbsp;list&nbsp;of&nbsp;<a href="#InputResponse">InputResponse</a>&nbsp;tuples&nbsp;containing&nbsp;the&nbsp;result<br>
+of&nbsp;the&nbsp;query.&nbsp;If&nbsp;the&nbsp;annotation&nbsp;was&nbsp;incorrectly&nbsp;identified<br>
+(i.e.&nbsp;it&nbsp;is&nbsp;not&nbsp;an&nbsp;annotation)&nbsp;a&nbsp;list&nbsp;containing&nbsp;an&nbsp;empty<br>
+<a href="__builtin__.html#tuple">tuple</a>&nbsp;will&nbsp;be&nbsp;returned.</tt></dd></dl>
+ <dl><dt><a name="-remove_one"><strong>remove_one</strong></a>(remove_lines, content, start)</dt><dd><tt>Removes&nbsp;one&nbsp;occurence&nbsp;of&nbsp;to_remove&nbsp;from&nbsp;content&nbsp;starting&nbsp;at&nbsp;start.</tt></dd></dl>
+ <dl><dt><a name="-save_state"><strong>save_state</strong></a>(progress, save, options)</dt><dd><tt>Save&nbsp;program&nbsp;state&nbsp;into&nbsp;files&nbsp;specified&nbsp;by&nbsp;PROGRESS_FILE&nbsp;and&nbsp;SAVE_FILE.</tt></dd></dl>
+</td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#55aa55">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Data</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#55aa55"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><strong>PROGRESS_FILE</strong> = '.bookmark'<br>
+<strong>SAVE_FILE</strong> = '.save'</td></tr></table>
+</body></html>

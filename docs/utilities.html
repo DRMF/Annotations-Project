@@ -1,0 +1,90 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module utilities</title>
+</head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong>utilities</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a><br><a href="file:/home/aad2/alexDLMF/AnnotationsProject/utilities.py">/home/aad2/alexDLMF/AnnotationsProject/utilities.py</a></font></td></tr></table>
+    <p><tt>Provides&nbsp;utility/helper&nbsp;functions&nbsp;for&nbsp;use&nbsp;in&nbsp;other&nbsp;files.</tt></p>
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#aa55cc">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Modules</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="os.html">os</a><br>
+</td><td width="25%" valign=top><a href="re.html">re</a><br>
+</td><td width="25%" valign=top><a href="sys.html">sys</a><br>
+</td><td width="25%" valign=top></td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#eeaa77">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Functions</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#eeaa77"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl><dt><a name="-debug"><strong>debug</strong></a>(function)</dt><dd><tt>Decorator&nbsp;that&nbsp;starts&nbsp;pdb&nbsp;before&nbsp;calling&nbsp;the&nbsp;function.</tt></dd></dl>
+ <dl><dt><a name="-find_line"><strong>find_line</strong></a>(byte, line_lengths)</dt><dd><tt>Determines&nbsp;which&nbsp;line&nbsp;the&nbsp;character&nbsp;`byte`&nbsp;bytes&nbsp;from&nbsp;the&nbsp;start&nbsp;of&nbsp;the&nbsp;file&nbsp;occurs&nbsp;on&nbsp;using&nbsp;a&nbsp;binary&nbsp;search.</tt></dd></dl>
+ <dl><dt><a name="-get_input"><strong>get_input</strong></a>(prompt, valid<font color="#909090">=None</font>, list<font color="#909090">=False</font>, wait<font color="#909090">=True</font>, preserve_case<font color="#909090">=False</font>)</dt><dd><tt>Requests&nbsp;input&nbsp;from&nbsp;stdin&nbsp;until&nbsp;a&nbsp;valid&nbsp;response&nbsp;is&nbsp;given.<br>
+&nbsp;<br>
+Prompts&nbsp;the&nbsp;user&nbsp;and&nbsp;keeps&nbsp;doing&nbsp;so&nbsp;(with&nbsp;appropriate&nbsp;error<br>
+message)&nbsp;until&nbsp;a&nbsp;valid&nbsp;response&nbsp;is&nbsp;given&nbsp;(i.e.&nbsp;one&nbsp;that&nbsp;is<br>
+specified&nbsp;in&nbsp;valid).&nbsp;If&nbsp;valid&nbsp;is&nbsp;None,&nbsp;any&nbsp;response&nbsp;except<br>
+whitespace&nbsp;or&nbsp;an&nbsp;empty&nbsp;string&nbsp;will&nbsp;be&nbsp;accepted.&nbsp;A&nbsp;space<br>
+will&nbsp;be&nbsp;added&nbsp;after&nbsp;the&nbsp;prompt&nbsp;if&nbsp;one&nbsp;is&nbsp;not&nbsp;present.&nbsp;If<br>
+`list`&nbsp;is&nbsp;specified&nbsp;as&nbsp;True,&nbsp;validity&nbsp;of&nbsp;input&nbsp;will&nbsp;be<br>
+determined&nbsp;character&nbsp;by&nbsp;character,&nbsp;otherwise,&nbsp;it&nbsp;will&nbsp;be<br>
+determined&nbsp;by&nbsp;word.&nbsp;If&nbsp;`wait`&nbsp;is&nbsp;True,&nbsp;will&nbsp;wait&nbsp;for&nbsp;the<br>
+user&nbsp;to&nbsp;press&nbsp;return.&nbsp;Otherwise,&nbsp;will&nbsp;accept&nbsp;first<br>
+typed&nbsp;character&nbsp;as&nbsp;input&nbsp;(using&nbsp;getch).<br>
+&nbsp;<br>
+For&nbsp;example:::<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#-get_input">get_input</a>("enter&nbsp;your&nbsp;name:")<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;enter&nbsp;your&nbsp;name:&nbsp;monty<br>
+&nbsp;&nbsp;&nbsp;&nbsp;(returns&nbsp;monty)<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;.<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;colors&nbsp;=&nbsp;[<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"green",<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"blue",<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"brown",<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"grey"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"hazel"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;]<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#-get_input">get_input</a>("enter&nbsp;your&nbsp;eye&nbsp;color:",&nbsp;colors)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;enter&nbsp;your&nbsp;eye&nbsp;color:&nbsp;red<br>
+&nbsp;&nbsp;&nbsp;&nbsp;That&nbsp;is&nbsp;not&nbsp;a&nbsp;valid&nbsp;response.&nbsp;Please&nbsp;try&nbsp;again.<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;enter&nbsp;your&nbsp;eye&nbsp;color:&nbsp;green<br>
+&nbsp;&nbsp;&nbsp;&nbsp;(returns&nbsp;green)</tt></dd></dl>
+ <dl><dt><a name="-get_last_line"><strong>get_last_line</strong></a>(fname)</dt><dd><tt>Returns&nbsp;the&nbsp;last&nbsp;line&nbsp;in&nbsp;file&nbsp;`fname`.</tt></dd></dl>
+ <dl><dt><a name="-get_line_lengths"><strong>get_line_lengths</strong></a>(content)</dt><dd><tt>Returns&nbsp;a&nbsp;list&nbsp;of&nbsp;the&nbsp;total&nbsp;number&nbsp;of&nbsp;bytes&nbsp;before&nbsp;the&nbsp;end&nbsp;of&nbsp;each&nbsp;line&nbsp;in&nbsp;content.</tt></dd></dl>
+ <dl><dt><a name="-readin"><strong>readin</strong></a>(filename)</dt><dd><tt>Returns&nbsp;the&nbsp;content&nbsp;of&nbsp;filename&nbsp;as&nbsp;a&nbsp;list&nbsp;of&nbsp;lines.</tt></dd></dl>
+ <dl><dt><a name="-remove_inner_whitespace"><strong>remove_inner_whitespace</strong></a>(line)</dt><dd><tt>Removes&nbsp;any&nbsp;repeated&nbsp;spaces&nbsp;from&nbsp;inside&nbsp;`line`&nbsp;(after&nbsp;the&nbsp;first&nbsp;word&nbsp;character)&nbsp;and&nbsp;returns&nbsp;the&nbsp;new&nbsp;string.</tt></dd></dl>
+ <dl><dt><a name="-unpack_list"><strong>unpack_list</strong></a>(first, second, *rest)</dt><dd><tt>Simulates&nbsp;Python&nbsp;3's&nbsp;extended&nbsp;iterable&nbsp;unpacking.<br>
+&nbsp;&nbsp;<br>
+&nbsp;&nbsp;&nbsp;Usage:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my_list&nbsp;=&nbsp;[1,2,3,4]<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#-unpack_list">unpack_list</a>(*my_list)&nbsp;&nbsp;&nbsp;&nbsp;#returns&nbsp;(1,&nbsp;2,&nbsp;(3,&nbsp;4))</tt></dd></dl>
+ <dl><dt><a name="-writeout"><strong>writeout</strong></a>(filename, content, append<font color="#909090">=False</font>)</dt><dd><tt>Writes&nbsp;content&nbsp;to&nbsp;file&nbsp;filename.</tt></dd></dl>
+</td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#55aa55">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Data</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#55aa55"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><strong>print_function</strong> = _Feature((2, 6, 0, 'alpha', 2), (3, 0, 0, 'alpha', 0), 65536)</td></tr></table>
+</body></html>
