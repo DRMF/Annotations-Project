@@ -1,5 +1,4 @@
-AnnotationsProject
-==================
+# Annotations-Project
 
 This project is meant to expedite the process of finding annotations
 (i.e. constraints, substitutions, etc) in TeX source files.
